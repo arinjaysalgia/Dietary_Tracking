@@ -1,0 +1,90 @@
+# =============================================================================
+# .gitignore for Dietary Tracking Project
+# Spring Boot (Java 21 + Maven) backend + Next.js 14 (TypeScript) frontend
+# =============================================================================
+
+
+# === Java / Maven ===
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+release.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+
+# === Spring Boot ===
+HELP.md
+backend/src/main/resources/application-local.properties
+backend/src/main/resources/application-local.yml
+
+
+# === Node.js / Next.js ===
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+frontend/.env.*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+
+# === Environment / Secrets (NEVER commit these) ===
+.env
+.env.local
+.env.*.local
+*.env
+secrets.properties
+application-secrets.yml
+
+
+# === IDE — IntelliJ IDEA ===
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+
+# === IDE — VS Code (machine-specific) ===
+.vscode/
+
+
+# === Claude Code (machine-specific) ===
+.claude/
+
+
+# === macOS ===
+.DS_Store
+.AppleDouble
+.LSOverride
+__MACOSX/
+._*
+
+
+# === Windows ===
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+
+# === Linux ===
+*~
+
+
+# === Logs ===
+*.log
+logs/
+
+
+# === Docker local overrides ===
+docker-compose.override.yml
+docker-compose.local.yml
+
+
+# === AI / Editor prompt files ===
+*.prompt.md
