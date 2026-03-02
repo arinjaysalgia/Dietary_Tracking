@@ -20,17 +20,24 @@ release.properties
 HELP.md
 backend/src/main/resources/application-local.properties
 backend/src/main/resources/application-local.yml
+backend/src/main/resources/application-dev.properties
+backend/src/main/resources/application-dev.yml
+backend/src/main/resources/application-test.properties
+backend/src/main/resources/application-test.yml
 
 
 # === Node.js / Next.js ===
 node_modules/
 frontend/.next/
 frontend/out/
+frontend/.turbo/
 frontend/.env.local
 frontend/.env.*.local
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+*.tsbuildinfo
 
 
 # === Environment / Secrets (NEVER commit these) ===
@@ -48,6 +55,18 @@ application-secrets.yml
 *.iws
 *.ipr
 out/
+
+
+# === IDE — Eclipse ===
+.classpath
+.project
+.settings/
+
+
+# === Editor — Vim ===
+*.swp
+*.swo
+*.swn
 
 
 # === IDE — VS Code (machine-specific) ===
