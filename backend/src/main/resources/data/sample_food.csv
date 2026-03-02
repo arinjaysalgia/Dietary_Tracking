@@ -1,5 +1,27 @@
 Item_Name,Quantity_InGrams,Calories,Protien_InGrams,Carbohydrates_InGrams,Fat_InGrams
 Apple,150,80,0.3,21,0.2
 Banana,120,105,1.3,27,0.3
-Egg,50,70,6.0,1,5.0
 Orange,130,62,1.2,15.4,0.2
+Mango,165,99,1.4,25,0.6
+Greek Yogurt,170,100,17.0,6,0.7
+Cottage Cheese,110,90,11.0,4,2.0
+Lentils,200,230,18.0,40,0.8
+Tofu,100,76,8.0,2,4.5
+Tempeh,100,193,19.0,9,11.0
+Paneer,100,265,18.0,3,21.0
+Edamame,100,122,11.0,9,5.0
+Brown Rice,195,215,5.0,45,1.8
+Oatmeal,240,150,5.0,27,2.5
+Sweet Potato,130,112,2.0,26,0.1
+Whole Wheat Bread,60,138,6.0,27,1.9
+Quinoa,185,222,8.0,39,3.6
+Chickpeas,164,270,15.0,45,4.3
+Black Beans,172,227,15.0,41,0.9
+Almonds,30,175,6.0,6,15.0
+Avocado,150,240,3.0,13,22.0
+Walnuts,30,196,5.0,4,20.0
+Olive Oil,14,119,0,0,14.0
+Cheddar Cheese,30,120,7.0,0.4,10.0
+Peanut Butter,32,190,7.0,7,16.0
+Chia Seeds,28,138,5.0,12,9.0
+Pumpkin Seeds,30,163,9.0,4,14.0
