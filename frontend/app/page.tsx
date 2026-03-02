@@ -5,8 +5,6 @@ import { FoodItem } from './types'
 import FoodItemList from './components/FoodItemList'
 import AddFoodItemForm from './components/AddFoodItemForm'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
-
 export default function Home() {
   const [items, setItems] = useState<FoodItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -16,7 +14,7 @@ export default function Home() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`${API_URL}/api/food-items`)
+      const res = await fetch('/api/food-items')
       if (!res.ok) {
         throw new Error(`Failed to fetch food items (HTTP ${res.status})`)
       }
@@ -40,7 +38,7 @@ export default function Home() {
   const handleDelete = useCallback(async (itemName: string) => {
     try {
       const res = await fetch(
-        `${API_URL}/api/food-items/${encodeURIComponent(itemName)}`,
+        `/api/food-items/${encodeURIComponent(itemName)}`,
         { method: 'DELETE' }
       )
       if (!res.ok) {

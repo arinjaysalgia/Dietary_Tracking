@@ -1,0 +1,11 @@
+# Production overlay — use with:
+#   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  backend:
+    ports:
+      - "8080:8080"
+
+  frontend:
+    ports:
+      - "3000:3000"

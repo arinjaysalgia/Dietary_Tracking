@@ -3,8 +3,6 @@
 import { useState, FormEvent } from 'react'
 import { FoodItem } from '../types'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
-
 interface AddFoodItemFormProps {
   onAdd: (item: FoodItem) => void
 }
@@ -44,7 +42,7 @@ export default function AddFoodItemForm({ onAdd }: AddFoodItemFormProps) {
     }
 
     try {
-      const res = await fetch(`${API_URL}/api/food-items`, {
+      const res = await fetch('/api/food-items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
