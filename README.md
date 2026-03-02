@@ -1,13 +1,14 @@
 # Dietary Tracker
 
-A full-stack web application for tracking dietary intake and nutritional information. Built with a Spring Boot REST API backend and a Next.js TypeScript frontend, orchestrated via Docker Compose.
+A full-stack web application for tracking dietary intake and generating personalised meal plans. Built with a Spring Boot REST API backend and a Next.js TypeScript frontend, orchestrated via Docker Compose.
 
 ## What It Does
 
 - View a table of food items with nutritional details (calories, protein, carbohydrates, fat)
 - Add new food items with custom nutritional values
 - Delete food items from the list
-- Preloaded with sample data (Apple, Banana, Egg, Orange) on startup
+- Generate a 5-day vegetarian meal plan from macro targets (protein %, carb %, fat %) and a total daily calorie goal
+- Preloaded with 26 vegetarian food items on startup
 
 ## Project Structure
 
@@ -15,21 +16,34 @@ A full-stack web application for tracking dietary intake and nutritional informa
 Dietary_Tracking/
 ├── backend/                         # Spring Boot Java REST API
 │   ├── src/main/java/com/example/
-│   │   ├── DietaryTrackingApplication.java   # Application entry point
-│   │   ├── controller/FoodItemController.java # REST endpoints
-│   │   ├── model/FoodItem.java               # Data model
-│   │   └── service/FoodItemService.java      # Business logic & in-memory store
+│   │   ├── DietaryTrackingApplication.java        # Application entry point
+│   │   ├── controller/
+│   │   │   ├── FoodItemController.java            # CRUD endpoints for food items
+│   │   │   └── MealPlanController.java            # Meal plan generation endpoint
+│   │   ├── model/
+│   │   │   ├── FoodItem.java                      # Food item data model
+│   │   │   ├── MealPlanRequest.java               # Meal plan request body
+│   │   │   ├── MealPlanItem.java                  # Scaled food item in a plan
+│   │   │   ├── DayPlan.java                       # Single day in the plan
+│   │   │   └── MealPlanResponse.java              # Full 5-day plan response
+│   │   └── service/
+│   │       ├── FoodItemService.java               # In-memory store & CSV loader
+│   │       └── MealPlanService.java               # Meal plan generation algorithm
 │   ├── src/main/resources/
-│   │   ├── application.properties            # Server config (port 8080)
-│   │   └── data/sample_food.csv              # Preloaded food data
+│   │   ├── application.properties                 # Server config (port 8080)
+│   │   └── data/sample_food.csv                   # 26 preloaded vegetarian foods
 │   ├── pom.xml                      # Maven build config (Java 21, Spring Boot 3.2.3)
 │   └── Dockerfile                   # Multi-stage build (Maven → JRE Alpine)
 ├── frontend/                        # Next.js 14 TypeScript app
 │   ├── app/
-│   │   ├── page.tsx                 # Home page (client component)
-│   │   ├── layout.tsx               # Root layout
+│   │   ├── page.tsx                 # Food items home page
+│   │   ├── layout.tsx               # Root layout with navigation
 │   │   ├── types.ts                 # TypeScript interfaces
 │   │   ├── globals.css              # Tailwind CSS imports
+│   │   ├── meal-plan/
+│   │   │   └── page.tsx             # Meal plan generator page
+│   │   ├── api/[...path]/
+│   │   │   └── route.ts             # Runtime proxy to backend API
 │   │   └── components/
 │   │       ├── AddFoodItemForm.tsx  # Form for adding food items
 │   │       └── FoodItemList.tsx     # Table displaying all food items
@@ -59,8 +73,7 @@ Requires [Docker](https://docs.docker.com/get-docker/) and Docker Compose.
 docker-compose up --build
 ```
 
-- Frontend: [http://localhost:3000](http://localhost:3000)
-- Backend API: [http://localhost:8080](http://localhost:8080)
+> The local override (`docker-compose.override.yml`) assigns ephemeral host ports to avoid conflicts. Run `docker-compose ps` after startup to see the assigned ports.
 
 To stop:
 ```bash
@@ -73,7 +86,6 @@ docker-compose down
 
 ```bash
 cd backend
-mvn clean package
 mvn spring-boot:run
 ```
 
@@ -91,6 +103,8 @@ Runs on `http://localhost:3000`.
 
 ## API Reference
 
+### Food Items
+
 Base URL: `http://localhost:8080/api/food-items`
 
 | Method | Endpoint | Description |
@@ -104,14 +118,44 @@ Base URL: `http://localhost:8080/api/food-items`
 
 ```json
 {
-  "itemName": "Apple",
-  "quantityInGrams": 150,
-  "calories": 80,
-  "proteinInGrams": 0.3,
-  "carbohydratesInGrams": 21,
-  "fatInGrams": 0.2
+  "itemName": "Tofu",
+  "quantityInGrams": 100,
+  "calories": 76,
+  "proteinInGrams": 8.0,
+  "carbohydratesInGrams": 2.0,
+  "fatInGrams": 4.5
 }
 ```
+
+### Meal Plan
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/meal-plan/generate` | Generate a 5-day meal plan |
+
+**Request body:**
+
+```json
+{
+  "proteinPercentage": 30,
+  "carbPercentage": 40,
+  "fatPercentage": 30,
+  "totalDailyCalories": 2000
+}
+```
+
+> `proteinPercentage + carbPercentage + fatPercentage` must equal 100 (±1 tolerance).
+
+**Response** — a `MealPlanResponse` containing:
+- `days`: array of 5 `DayPlan` objects (Monday–Friday), each with a list of scaled food items and macro totals
+- `targetCalories`, `targetProteinInGrams`, `targetCarbsInGrams`, `targetFatInGrams`: the computed daily targets
+
+### Meal Plan Algorithm
+
+1. Foods from the CSV are categorised by their dominant macro (protein, carb, or fat).
+2. Each group is allocated a calorie budget equal to `totalCalories × groupPercentage%`, ensuring the day total equals the target exactly.
+3. 3 protein foods + 3 carb foods + 2 fat foods are selected per day, rotating the selection across the 5 days for variety.
+4. Each food's portion is scaled so its calorie contribution fills its share of the group budget.
 
 ## Configuration
 
@@ -126,10 +170,10 @@ spring.application.name=dietary-tracking
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8080` | Backend API base URL |
+| `BACKEND_URL` | `http://localhost:8080` | Backend base URL used by the server-side API proxy |
 
-Override in `docker-compose.yml` or a `.env.local` file in the `frontend/` directory.
+Set in `docker-compose.yml` (uses `http://backend:8080` for Docker internal DNS) or override in a `.env.local` file in the `frontend/` directory.
 
 ## Data Persistence
 
-Data is stored **in-memory only** and is reset on each restart. The application seeds initial data from `backend/src/main/resources/data/sample_food.csv` on startup.
+Data is stored **in-memory only** and is reset on each restart. The application seeds initial data from `backend/src/main/resources/data/sample_food.csv` on startup. The CSV contains 26 vegetarian food items across protein-dominant, carb-dominant, and fat-dominant categories.
