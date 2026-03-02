@@ -14,7 +14,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN npm run build
+RUN npm run build && mkdir -p /app/public
 
 # Stage 3 – Production runner
 FROM node:20-alpine AS runner
@@ -31,8 +31,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy public folder if it exists (no-op if missing)
-COPY --from=builder --chown=nextjs:nodejs /app/public* ./public/
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 
