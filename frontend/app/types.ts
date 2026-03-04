@@ -40,3 +40,12 @@ export interface MealPlanResponse {
   targetCarbsInGrams: number;
   targetFatInGrams: number;
 }
+
+export interface GroceryItem {
+  itemName: string;
+  totalPortionInGrams: number;
+}
+
+export interface GroceryListResponse {
+  items: GroceryItem[];
+}

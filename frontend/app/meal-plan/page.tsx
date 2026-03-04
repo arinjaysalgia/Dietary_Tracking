@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import type { MealPlanRequest, MealPlanResponse, DayPlan } from '../types'
+import { useRouter } from 'next/navigation'
+import type { MealPlanRequest, MealPlanResponse, DayPlan, GroceryListResponse } from '../types'
 
 const defaultForm: MealPlanRequest = {
   proteinPercentage: 30,
@@ -11,10 +12,13 @@ const defaultForm: MealPlanRequest = {
 }
 
 export default function MealPlanPage() {
+  const router = useRouter()
   const [form, setForm] = useState<MealPlanRequest>(defaultForm)
   const [result, setResult] = useState<MealPlanResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [groceryLoading, setGroceryLoading] = useState(false)
+  const [groceryError, setGroceryError] = useState<string | null>(null)
 
   const percentageSum = form.proteinPercentage + form.carbPercentage + form.fatPercentage
 
@@ -38,6 +42,7 @@ export default function MealPlanPage() {
 
     setLoading(true)
     setResult(null)
+    setGroceryError(null)
     try {
       const res = await fetch('/api/meal-plan/generate', {
         method: 'POST',
@@ -54,6 +59,29 @@ export default function MealPlanPage() {
       setError(err instanceof Error ? err.message : 'Failed to generate meal plan.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleCreateGroceryList() {
+    if (!result) return
+    setGroceryLoading(true)
+    setGroceryError(null)
+    try {
+      const res = await fetch('/api/grocery-list/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result),
+      })
+      if (!res.ok) {
+        throw new Error(`Request failed with status ${res.status}`)
+      }
+      const data: GroceryListResponse = await res.json()
+      sessionStorage.setItem('groceryList', JSON.stringify(data))
+      router.push('/grocery-list')
+    } catch (err: unknown) {
+      setGroceryError(err instanceof Error ? err.message : 'Failed to create grocery list.')
+    } finally {
+      setGroceryLoading(false)
     }
   }
 
@@ -134,7 +162,6 @@ export default function MealPlanPage() {
           </div>
         </div>
 
-        {/* Percentage sum indicator */}
         <div className={`text-sm font-medium ${Math.abs(percentageSum - 100) <= 1 ? 'text-green-600' : 'text-red-500'}`}>
           Macro total: {percentageSum}% {Math.abs(percentageSum - 100) <= 1 ? '✓' : '(must equal 100%)'}
         </div>
@@ -167,6 +194,20 @@ export default function MealPlanPage() {
           </div>
 
           {result.days.map(day => <DayCard key={day.dayNumber} day={day} />)}
+
+          {/* Grocery list CTA */}
+          <div className="flex items-center gap-4 pt-2">
+            <button
+              onClick={handleCreateGroceryList}
+              disabled={groceryLoading}
+              className="bg-white hover:bg-gray-50 disabled:opacity-50 border-2 border-green-600 text-green-700 font-semibold px-6 py-2.5 rounded-lg text-sm transition-colors"
+            >
+              {groceryLoading ? 'Creating…' : 'Create Grocery List'}
+            </button>
+            {groceryError && (
+              <p className="text-sm text-red-600">{groceryError}</p>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -26,6 +26,9 @@ export default function RootLayout({
               <Link href="/meal-plan" className="text-sm text-green-100 hover:text-white font-medium transition-colors">
                 Meal Plan
               </Link>
+              <Link href="/grocery-list" className="text-sm text-green-100 hover:text-white font-medium transition-colors">
+                Grocery List
+              </Link>
             </nav>
           </div>
         </header>
